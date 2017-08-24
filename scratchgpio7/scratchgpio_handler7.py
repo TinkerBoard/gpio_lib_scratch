@@ -5309,7 +5309,7 @@ class ScratchListener(threading.Thread):
                         for pin in sghGC.validPins:
                             if self.bFindOnOff('pin' + str(pin)):
                                 sghGC.pinUpdate(pin, self.OnOrOff)
-                            if self.bFindOnOff('gpio' + str(sghGC.gpioLookup[pin])):
+                            if self.bFindOnOff('gpio' + str(pin)):
                                 sghGC.pinUpdate(pin, self.OnOrOff)
                             if self.bFindValue('gpio' + str(pin) + "pwm"):
                                 if self.valueIsNumeric:
