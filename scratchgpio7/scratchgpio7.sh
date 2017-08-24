@@ -6,4 +6,4 @@
 sudo pkill -f scratchgpio_handler
 cd /scratchgpio7
 sudo python scratchgpio_handler7.py 127.0.0.1 standard &
-scratch --document "/home/linaro/Documents/Scratch Projects/gpioinputsample.sb" &
+scratch --document "/home/linaro/Documents/Scratch Projects/GPIO_IN_OUT_TEST.sb" &
