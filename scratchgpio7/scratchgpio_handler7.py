@@ -1053,7 +1053,6 @@ class ScratchListener(threading.Thread):
         return (self.bFind(searchStr + 'off ') or self.bFind(searchStr + 'low ') or self.bFind(searchStr + '0 '))
 
     def bFindOnOff(self, searchStr):
-        print "bFindOnOff searching for" ,searchStr
         self.OnOrOff = None
         if (self.bFind(searchStr + 'on ') or self.bFind(searchStr + 'high ') or self.bFind(
                     searchStr + '1 ') or self.bFind(searchStr + 'true ')):
@@ -1072,7 +1071,6 @@ class ScratchListener(threading.Thread):
 
 
     def bCheckAll(self, default=True, pinList=None):
-	print "yihsin bCheckAll"
         if self.bFindOnOff('all'):
             if default:
                 pinList = sghGC.validPins
@@ -1083,7 +1081,6 @@ class ScratchListener(threading.Thread):
                     sghGC.pinUpdate(pin, self.OnOrOff)
 
     def bPinCheck(self, pinList):
-	print "yihsin bPinCheck"
         for pin in pinList:
             logging.debug("bPinCheck:%s", pin)
             if self.bFindOnOff('pin' + str(pin)):
@@ -1104,7 +1101,6 @@ class ScratchListener(threading.Thread):
                 sghGC.pinUpdate(ledList[led - 1], self.OnOrOff)
 
     def bListCheck(self, pinList, nameList):
-	print "yihsin bListCheck"
         for loop in range(0, len(pinList)):  # loop thru list
             print str(nameList[loop]) , pinList[loop]
             if self.bFindOnOff(str(nameList[loop])):
@@ -1206,7 +1202,6 @@ class ScratchListener(threading.Thread):
             return False
 
     def vFindValue(self, searchStr):
-        print "vFindValue searching for ", searchStr
         self.value = None
         self.valueNumeric = None
         self.valueIsNumeric = False
@@ -1230,7 +1225,6 @@ class ScratchListener(threading.Thread):
 
     def vPinCheck(self):
         for pin in sghGC.validPins:
-            print "checking pin" ,pin
             if self.vFindValue('pin' + str(pin)):
                 if self.valueIsNumeric:
                     sghGC.pinUpdate(pin, self.valueNumeric)
@@ -1238,7 +1232,6 @@ class ScratchListener(threading.Thread):
                     sghGC.pinUpdate(pin, 0)
 
             if self.vFindValue('power' + str(pin)):
-                print pin , "found"
                 if self.valueIsNumeric:
                     sghGC.pinUpdate(pin, self.valueNumeric, type="pwm")
                 else:
@@ -1550,7 +1543,7 @@ class ScratchListener(threading.Thread):
             #This is main listening routine
         lcount = 0
         dataPrevious = ""
-        debugLogging = True
+        debugLogging = False
 
         listenLoopTime = time.time() + 10000
         datawithCAPS = ''
@@ -1735,16 +1728,12 @@ class ScratchListener(threading.Thread):
                             # fred = subprocess.Popen(['xdotool', 'click', '1',]).wait()
                             # fred = subprocess.Popen(['xdotool', 'key', 'Return'])
                             # #print "fred",fred
-
-                    if self.vFindValue("sghdebug"):
                         if (self.value == "1") and (debugLogging == False):
                             logging.getLogger().setLevel(logging.DEBUG)
                             debugLogging = True
-		            print "yihsin debug on"
                         if (self.value == "0") and (debugLogging == True):
                             logging.getLogger().setLevel(logging.INFO)
                             debugLogging = False
-			    print "yihsin debug off"
 
                     if self.vFindValue("bright"):
                         sghGC.ledDim = int(self.valueNumeric) if self.valueIsNumeric else 20
@@ -2442,11 +2431,11 @@ class ScratchListener(threading.Thread):
                         for pin in sghGC.validPins:
                             #print "checking pin" ,pin
                             if self.bFindValue('config' + str(pin)):
-                                if self.value == "in":
+                                if self.value in ["in", "input", "inpullup", "inputpullup"]:
                                     sghGC.pinUse[pin] = sghGC.PINPUT
-                                if self.value == "inpulldown":
+                                if self.value in ["inpulldown", "inputpulldown"]:
                                     sghGC.pinUse[pin] = sghGC.PINPUTDOWN
-                                if self.value == "inpullnone":
+                                if self.value in ["inpullnone", "inputpullnone"]:
                                     sghGC.pinUse[pin] = sghGC.PINPUTNONE
 
                         sghGC.setPinMode()
@@ -3700,11 +3689,9 @@ class ScratchListener(threading.Thread):
                         if (self.OnOrOff == True) and (debugLogging == False):
                             logging.getLogger().setLevel(logging.DEBUG)
                             debugLogging = True
-			    print "yihsin debug On off on"
                         if (self.OnOrOff == False) and (debugLogging == True):
                             logging.getLogger().setLevel(logging.INFO)
                             debugLogging = False
-			    print "yihsin debug On off off"
 
                     if (debugLogging == False):
                         logging.getLogger().setLevel(logging.INFO)
@@ -5316,31 +5303,20 @@ class ScratchListener(threading.Thread):
 
 
                     else:  # Plain GPIO Broadcast processing
-
-			print "yihsin Plain GPIO Broadcast"
                         self.bCheckAll()  # Check for all off/on type broadcasrs
                         #self.bPinCheck(sghGC.validPins) # Check for pin off/on type broadcasts
-
-			logging.debug("yihsin :%s",pin )
-
                         #check pins
                         for pin in sghGC.validPins:
                             if self.bFindOnOff('pin' + str(pin)):
                                 sghGC.pinUpdate(pin, self.OnOrOff)
                             if self.bFindOnOff('gpio' + str(sghGC.gpioLookup[pin])):
                                 sghGC.pinUpdate(pin, self.OnOrOff)
-
-			    #=================yihsin add =========================
                             if self.bFindValue('gpio' + str(pin) + "pwm"):
-                                #logging.debug("bGpioPin:%s",pin )
                                 if self.valueIsNumeric:
                                     sghGC.pinUpdate(pin, self.valueNumeric, type="pwm")
                                 else:
                                     sghGC.pinUpdate(pin, 0, type="pwm")
-			    #=================end================================
-
                             if self.bFindValue('power' + str(pin) + ","):
-                                #logging.debug("bPowerPin:%s",pin )
                                 if self.valueIsNumeric:
                                     sghGC.pinUpdate(pin, self.valueNumeric, type="pwm")
                                 else:
@@ -6474,7 +6450,7 @@ sghGC = sgh_GPIOController.GPIOController(True)
 print "pi Revision", sghGC.getPiRevision()
 
 ADDON = ""
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)  # default DEBUG - quiwr = INFO
+logging.basicConfig(stream=sys.stderr, level=logging.NOTSET)  # default DEBUG - quiwr = INFO
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 

@@ -322,13 +322,13 @@ class GPIOController :
                 pass
                 
             if (self.pinUse[pin] == self.POUTPUT):
-                GPIO.setup(pin,GPIO.IN)   
+                GPIO.setup(pin, GPIO.OUT)   
             elif (self.pinUse[pin] == self.PINPUT):
-                GPIO.setup(pin,GPIO.IN)   
+                GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)   
             elif (self.pinUse[pin] == self.PINPUTDOWN):
-                GPIO.setup(pin,GPIO.IN)  
+                GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  
             elif (self.pinUse[pin] == self.PINPUTNONE):
-                GPIO.setup(pin,GPIO.IN)
+                GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
             elif (self.pinUse[pin] == self.PCOUNT):
                 GPIO.setup(pin,GPIO.IN)
             self.pinUse[pin] = self.PUNUSED
@@ -353,7 +353,7 @@ class GPIOController :
                     self.callbackInUse[pin] = False
                 except:
                     pass                    
-                GPIO.setup(pin,GPIO.OUT)
+                GPIO.setup(pin, GPIO.OUT)
                 if (self.pinInvert[pin] == True):
                     GPIO.output(pin,1)
                 else:
@@ -361,21 +361,21 @@ class GPIOController :
                 self.pinValue[pin] = 0
             elif (self.pinUse[pin] == self.PINPUT):
                 print 'setting pin' , pin , ' to in with pull up' 
-                GPIO.setup(pin,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+                GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
                 try:
                     GPIO.add_event_detect(pin, GPIO.BOTH, callback=self.gpioBoth,bouncetime=50)  # add rising edge detection on a channel
                 except:
                     pass
             elif (self.pinUse[pin] == self.PINPUTDOWN):
                 print 'setting pin' , pin , ' to in with pull down' 
-                GPIO.setup(pin,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+                GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
                 try:
                     GPIO.add_event_detect(pin, GPIO.BOTH, callback=self.gpioBoth,bouncetime=50)  # add rising edge detection on a channel
                 except:
                     pass             
             elif (self.pinUse[pin] == self.PINPUTNONE):
                 print 'setting pin' , pin , ' to in with pull down' 
-                GPIO.setup(pin,GPIO.IN)
+                GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
                 try:
                     GPIO.add_event_detect(pin, GPIO.BOTH, callback=self.gpioBoth,bouncetime=50)  # add rising edge detection on a channel
                 except:
