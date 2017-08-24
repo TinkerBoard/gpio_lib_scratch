@@ -1047,21 +1047,19 @@ class ScratchListener(threading.Thread):
         return (' ' + searchStr in self.dataraw)
 
     def bFindOn(self, searchStr):
-        return (self.bFind(searchStr + 'on ') or self.bFind(searchStr + 'high ') or self.bFind(searchStr + '1 '))
+        return (self.bFind(searchStr + 'on ') or self.bFind(searchStr + 'high '))
 
     def bFindOff(self, searchStr):
-        return (self.bFind(searchStr + 'off ') or self.bFind(searchStr + 'low ') or self.bFind(searchStr + '0 '))
+        return (self.bFind(searchStr + 'off ') or self.bFind(searchStr + 'low '))
 
     def bFindOnOff(self, searchStr):
         self.OnOrOff = None
-        if (self.bFind(searchStr + 'on ') or self.bFind(searchStr + 'high ') or self.bFind(
-                    searchStr + '1 ') or self.bFind(searchStr + 'true ')):
+        if (self.bFind(searchStr + 'on ') or self.bFind(searchStr + 'high ') or self.bFind(searchStr + 'true ')):
             self.OnOrOff = 1
             self.valueNumeric = 1
             self.value = "on"
             return True
-        elif (self.bFind(searchStr + 'off ') or self.bFind(searchStr + 'low ') or self.bFind(
-                    searchStr + '0 ') or self.bFind(searchStr + 'false ')):
+        elif (self.bFind(searchStr + 'off ') or self.bFind(searchStr + 'low ') or self.bFind(searchStr + 'false ')):
             self.OnOrOff = 0
             self.valueNumeric = 01
             self.value = "off"
