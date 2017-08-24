@@ -561,7 +561,7 @@ class ScratchSender(threading.Thread):
                 for listIndex in range(len(sghGC.validPins)):
                     pin = sghGC.validPins[listIndex]
                     pin_bit_pattern[listIndex] = 0
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
                         #logging.debug("Checking event on pin:%s", pin )
                         pinEvent = sghGC.pinEvent(pin)
                         pinValue = sghGC.pinRead(pin)
@@ -895,7 +895,7 @@ class ScratchSender(threading.Thread):
                 lastPinUpdateTime = time.time()
                 for listIndex in range(len(sghGC.validPins)):
                     pin = sghGC.validPins[listIndex]
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
                         pin_bit_pattern[listIndex] = sghGC.pinRead(pin)
                         self.broadcast_pin_update(pin, pin_bit_pattern[listIndex])
                 #if ColourTracker.green[2] == True:
@@ -2388,7 +2388,7 @@ class ScratchListener(threading.Thread):
 
 
                         for pin in sghGC.validPins:
-                            if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
+                            if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
                                 sghGC.pinTriggerLastState[pin] = sghGC.pinRead(pin)
                                 print "pinTriggerLastState", pin, sghGC.pinTriggerLastState[pin]
 
