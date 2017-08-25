@@ -7,15 +7,17 @@ PCOUNT = 256
 PINPUTDOWN = 512
 PINPUTNONE = 1024
 
-ConfigInpullUpCommand = ['in', 'input', 'inpullup', 'inputpullup']
-ConfigInpullDownCommand = ['inpulldown', 'inputpulldown']
-ConfigInpullNoneCommand = ['inpullnone', 'inputpullnone']
-ConfigOutputCommand = ['out', 'output']
-ConfigPWMCommand = ['pwm', 'outpwm', 'outputpwm']
-ConfigCommand = ConfigInpullUpCommand + ConfigInpullDownCommand + ConfigInpullNoneCommand + ConfigOutputCommand + ConfigPWMCommand
-ConfigRegularExpression = r'config([0-9]+)(%s)' % ('|'.join(sorted(ConfigCommand, key =lambda x: len(x), reverse=True)))
+
 
 def QueryConfigCommand(command):
+    ConfigInpullUpCommand = ['in', 'input', 'inpullup', 'inputpullup']
+    ConfigInpullDownCommand = ['inpulldown', 'inputpulldown']
+    ConfigInpullNoneCommand = ['inpullnone', 'inputpullnone']
+    ConfigOutputCommand = ['out', 'output']
+    ConfigPWMCommand = ['pwm', 'outpwm', 'outputpwm']
+    ConfigCommand = ConfigInpullUpCommand + ConfigInpullDownCommand + ConfigInpullNoneCommand + ConfigOutputCommand + ConfigPWMCommand
+    ConfigCommand = sorted(ConfigCommand, key =lambda x: len(x), reverse=True)
+    ConfigRegularExpression = r'config([0-9]+)(%s)' % ('|'.join(ConfigCommand))
     result = re.findall(ConfigRegularExpression, command)
     if(len(result) <= 0):
         return None
@@ -32,4 +34,28 @@ def QueryConfigCommand(command):
             return (pin, POUTPUT)
         elif (c in ConfigPWMCommand):
             return (pin, PPWM)
+        return None
+
+def QuerySetPinCommand(command):
+    OnCommand = ['on', 'high', 'true']
+    OffCommand = ['off', 'low', 'false']
+    PWMCommand = ['pwm']
+    PinCommand = OnCommand + OffCommand + PWMCommand
+    PinCommand = sorted(PinCommand, key =lambda x: len(x), reverse=True)
+    PinRegularExpression = r'(gpio|pin)([0-9]+)(%s)([0-9]+)?' % ('|'.join(PinCommand))
+    result = re.findall(PinRegularExpression, command)
+    if(len(result) <= 0):
+        return None
+    else:
+        pin = int(result[0][1])
+        value = result[0][2].strip()
+        if (value in OnCommand):
+            return (pin, 1)
+        elif (value in OffCommand):
+            return (pin, 0)
+        elif (value in PWMCommand):
+            if(result[0][3].strip().isdigit()):
+                return (pin, int(result[0][3].strip()) ,'pwm')
+            else:
+                return (pin, 0,'pwm')
         return None

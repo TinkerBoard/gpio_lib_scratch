@@ -562,7 +562,7 @@ class ScratchSender(threading.Thread):
                 for listIndex in range(len(sghGC.validPins)):
                     pin = sghGC.validPins[listIndex]
                     pin_bit_pattern[listIndex] = 0
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
                         #logging.debug("Checking event on pin:%s", pin )
                         pinEvent = sghGC.pinEvent(pin)
                         pinValue = sghGC.pinRead(pin)
@@ -896,7 +896,7 @@ class ScratchSender(threading.Thread):
                 lastPinUpdateTime = time.time()
                 for listIndex in range(len(sghGC.validPins)):
                     pin = sghGC.validPins[listIndex]
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
                         pin_bit_pattern[listIndex] = sghGC.pinRead(pin)
                         self.broadcast_pin_update(pin, pin_bit_pattern[listIndex])
                 #if ColourTracker.green[2] == True:
@@ -5286,10 +5286,17 @@ class ScratchListener(threading.Thread):
                             sghGC.pinUpdate(15, self.OnOrOff)
                         if self.bFindOnOff('rightled'):
                             sghGC.pinUpdate(13, self.OnOrOff)
-
-
-
                     else:  # Plain GPIO Broadcast processing
+                        self.bCheckAll()  # Check for all off/on type broadcasrs
+                        CheckpinResult = TinkerBoardCommand.QuerySetPinCommand(self.dataraw)
+                        if CheckpinResult != None:
+                            if CheckpinResult[0] in sghGC.validPins:
+                                if(len(CheckpinResult) > 2):
+                                    sghGC.pinUpdate(CheckpinResult[0], CheckpinResult[1], type="pwm")
+                                else:
+                                    sghGC.pinUpdate(CheckpinResult[0], CheckpinResult[1])
+                        
+                    '''else:  # Plain GPIO Broadcast processing
                         self.bCheckAll()  # Check for all off/on type broadcasrs
                         #self.bPinCheck(sghGC.validPins) # Check for pin off/on type broadcasts
                         #check pins
@@ -5338,7 +5345,7 @@ class ScratchListener(threading.Thread):
                                 self.startUltra(pin, 0, self.OnOrOff)
 
 
-                                #end of normal pin checking
+                                #end of normal pin checking'''
 
                     stepperList = [['positiona', [11, 12, 13, 15]], ['positionb', [16, 18, 22, 7]]]
                     for listLoop in range(0, 2):
