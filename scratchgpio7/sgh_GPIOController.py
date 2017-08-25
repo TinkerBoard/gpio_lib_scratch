@@ -405,12 +405,9 @@ class GPIOController :
                 else:
                     print ("Callback already in use")
                     
-        print ("SetPinMode:",self.pinUse)
+        print ("SetPinMode:",[(i, self.pinUse[i])  for i in range(len(self.pinUse))])
                 
     def pinUpdate(self, pin, value,type = 'plain',stepDelay = 0.003):
-        print "pinUpdate p,v,t,pwmref: ",pin,value,type,self.pinRef[pin]
-        print "pin",pin
-        print "pvalue",self.pinValue
         self.pinValue[pin] = value
         self.mFreq = max(5,abs(value/2))
         if (self.ledDim < 100) and (type == 'plain'):
@@ -426,16 +423,13 @@ class GPIOController :
                     
                 print "motor freq calc", self.mFreq
                 try: 
-                    print "try jsut updating pwm"
                     self.pinRef[pin].ChangeDutyCycle(max(0,min(100,abs(value)))) # just update PWM value
                     if type == "pwmmotor":
                         #print "motor freq used a", self.mFreq
                         self.pinRef[pin].ChangeFrequency(self.mFreq) # change freq to motor freq
                     elif type != "pwmbeep":
                         #print "motor freq used a", self.mFreq
-                        self.pinRef[pin].ChangeFrequency(self.pFreq) # change freq to motor freq                        
-             
-                    print "updating pwm suceceed"
+                        self.pinRef[pin].ChangeFrequency(self.pFreq) # change freq to motor freq        
                 except:
                     print "pwm not set so now setting up"
                     try:
@@ -456,13 +450,10 @@ class GPIOController :
                     self.pinUse[pin] = self.PPWM # set pin use as PWM
          
             elif type == "plain":
-                print "Plain processing- Pin " , pin , " commanded to be " , value
-                print "pinUpdate p,v,t,pwmref: ",pin,value,type,self.pinRef[pin]
                 if (self.pinInvert[pin] == True): # Invert data value (useful for 7 segment common anode displays)
                     value = 1 - abs(value)
                 if (self.pinUse[pin] == self.POUTPUT): # if already an output
                     GPIO.output(pin, int(value)) # set output to 1 ot 0
-                    print 'pin' , pin , ' was already an output.  Now set to' , value
                     
                 elif (self.pinUse[pin] in [self.PINPUT,self.PINPUTNONE,self.PINPUTDOWN]): # if pin is an input
                     try:
@@ -479,12 +470,9 @@ class GPIOController :
                 elif (self.pinUse[pin] == self.PUNUSED): # if pin is not allocated
                     self.pinUse[pin] = self.POUTPUT # switch it to output
                     GPIO.setup(pin,GPIO.OUT)
-                    GPIO.output(pin,int(value)) # set output to 1 or 0
-                    print 'pin' , pin , ' was ununsed - now out value ' , value            
+                    GPIO.output(pin,int(value)) # set output to 1 or 0         
 
                 elif (self.pinUse[pin] == self.PPWM): # pin was set as pwm
-                    print "pinUpdate p,v,t,pwmref: ",pin,value,type,self.pinRef[pin]
-                    print "pwm pin", pin , " sent digital on off: ",value
                     value = 100 if value else 0
                     self.pinRef[pin].ChangeDutyCycle(value)
 

@@ -42,6 +42,7 @@ import sgh_RasPiCamera
 import random
 import Queue
 from sgh_cheerlights import CheerLights
+import TinkerBoardCommand
 #import uinput
 try:
     from sgh_webcamcolour import ColourTracker
@@ -561,7 +562,7 @@ class ScratchSender(threading.Thread):
                 for listIndex in range(len(sghGC.validPins)):
                     pin = sghGC.validPins[listIndex]
                     pin_bit_pattern[listIndex] = 0
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
                         #logging.debug("Checking event on pin:%s", pin )
                         pinEvent = sghGC.pinEvent(pin)
                         pinValue = sghGC.pinRead(pin)
@@ -895,7 +896,7 @@ class ScratchSender(threading.Thread):
                 lastPinUpdateTime = time.time()
                 for listIndex in range(len(sghGC.validPins)):
                     pin = sghGC.validPins[listIndex]
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
                         pin_bit_pattern[listIndex] = sghGC.pinRead(pin)
                         self.broadcast_pin_update(pin, pin_bit_pattern[listIndex])
                 #if ColourTracker.green[2] == True:
@@ -1029,9 +1030,7 @@ class ScratchListener(threading.Thread):
 
     def getValue(self, searchString):
         outputall_pos = self.dataraw.find((searchString + ' '))
-	print "getValue outputall_pos" , outputall_pos
         sensor_value = self.dataraw[(outputall_pos + 1 + len(searchString)):].split()
-	print "sensor_value", sensor_value[0]
         try:
             return sensor_value[0]
         except IndexError:
@@ -1206,11 +1205,9 @@ class ScratchListener(threading.Thread):
         if self.vFind(searchStr):
             #print "found"
             self.value = self.getValue(searchStr)
-            print "vFindValue self.value" ,self.value
             if isNumeric(self.value):
                 self.valueNumeric = float(self.value)
                 self.valueIsNumeric = True
-                print "vFindValue numeric" , self.valueNumeric
             return True
         else:
             return False
@@ -2388,7 +2385,7 @@ class ScratchListener(threading.Thread):
 
 
                         for pin in sghGC.validPins:
-                            if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
+                            if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
                                 sghGC.pinTriggerLastState[pin] = sghGC.pinRead(pin)
                                 print "pinTriggerLastState", pin, sghGC.pinTriggerLastState[pin]
 
@@ -2424,18 +2421,11 @@ class ScratchListener(threading.Thread):
                                 print "invert status pin", pin, "is", sghGC.pinInvert[pin]
 
                 #Change pins from input to output if more needed
-                if self.bFind('config'):
+                CheckConfigResult = TinkerBoardCommand.QueryConfigCommand(self.dataraw)                              
+                if CheckConfigResult != None:
                     with lock:
-                        for pin in sghGC.validPins:
-                            #print "checking pin" ,pin
-                            if self.bFindValue('config' + str(pin)):
-                                if self.value in ["in", "input", "inpullup", "inputpullup"]:
-                                    sghGC.pinUse[pin] = sghGC.PINPUT
-                                if self.value in ["inpulldown", "inputpulldown"]:
-                                    sghGC.pinUse[pin] = sghGC.PINPUTDOWN
-                                if self.value in ["inpullnone", "inputpullnone"]:
-                                    sghGC.pinUse[pin] = sghGC.PINPUTNONE
-
+                        if CheckConfigResult[0] in sghGC.validPins:
+                            sghGC.pinUse[CheckConfigResult[0]] = CheckConfigResult[1]
                         sghGC.setPinMode()
                         ### Check for AddOn boards being declared
 
@@ -3599,7 +3589,6 @@ class ScratchListener(threading.Thread):
 
 
                                     ### Check for Broadcast type messages being received
-                print "loggin level",debugLogging
                 if (debugLogging == False):
                     logging.getLogger().setLevel(logging.INFO)
 
