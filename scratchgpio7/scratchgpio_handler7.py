@@ -875,7 +875,7 @@ class ScratchSender(threading.Thread):
                 if (pin_bit_pattern[listIndex] != last_bit_pattern[listIndex]) or sghGC.pinTrigger[pin] == 1:
                     logging.debug("Change or triger detected in pin:%s changed to:%s, trigger val:%s", pin,
                                   pin_bit_pattern[listIndex], sghGC.pinTrigger[pin])
-                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN]):
+                    if (sghGC.pinUse[pin] in [sghGC.PINPUT, sghGC.PINPUTNONE, sghGC.PINPUTDOWN, sghGC.POUTPUT]):
                         #print pin , pin_value
                         self.broadcast_pin_update(pin, pin_bit_pattern[listIndex])
                         time.sleep(0.05)  # just to give Scratch a better chance to react to event
