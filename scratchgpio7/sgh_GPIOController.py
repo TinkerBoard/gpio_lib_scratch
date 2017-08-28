@@ -321,7 +321,7 @@ class GPIOController :
             except:
                 pass
                 
-            if (self.pinUse[pin] == self.POUTPUT):
+            if (self.pinUse[pin] in [self.POUTPUT, self.PPWM]):
                 GPIO.setup(pin, GPIO.OUT)   
             elif (self.pinUse[pin] == self.PINPUT):
                 GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)   
@@ -342,8 +342,13 @@ class GPIOController :
     #Procedure to set pin mode for each pin
     def setPinMode(self):
         for pin in self.validPins:
+            try:
+                self.pinRef[pin].stop() # stop PWM from running
+                self.pinRef[pin] = None
+            except:
+                pass
             #print pin
-            if (self.pinUse[pin] == self.POUTPUT):
+            if (self.pinUse[pin] in [self.POUTPUT, self.PPWM]):
                 print 'setting pin' , pin , ' to out' 
                 try:
                     GPIO.remove_event_detect(pin)
