@@ -2426,6 +2426,10 @@ class ScratchListener(threading.Thread):
                     with lock:
                         if CheckConfigResult[0] in sghGC.validPins:
                             sghGC.pinUse[CheckConfigResult[0]] = CheckConfigResult[1]
+                            if(CheckConfigResult[2] >= 0):
+                                sghGC.pinUpdate(CheckConfigResult[0], 50, type="pwm")
+                                sghGC.pFreq = CheckConfigResult[2]
+                                sghGC.pinFreq(CheckConfigResult[0], CheckConfigResult[2])
                         sghGC.setPinMode()
                         ### Check for AddOn boards being declared
 

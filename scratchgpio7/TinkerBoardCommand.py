@@ -17,7 +17,7 @@ def QueryConfigCommand(command):
     ConfigPWMCommand = ['pwm', 'outpwm', 'outputpwm']
     ConfigCommand = ConfigInpullUpCommand + ConfigInpullDownCommand + ConfigInpullNoneCommand + ConfigOutputCommand + ConfigPWMCommand
     ConfigCommand = sorted(ConfigCommand, key =lambda x: len(x), reverse=True)
-    ConfigRegularExpression = r'config([0-9]+)(%s)' % ('|'.join(ConfigCommand))
+    ConfigRegularExpression = r'config([0-9]+)(%s)([0-9]+)?' % ('|'.join(ConfigCommand))
     result = re.findall(ConfigRegularExpression, command)
     if(len(result) <= 0):
         return None
@@ -25,15 +25,15 @@ def QueryConfigCommand(command):
         pin = int(result[0][0])
         c = result[0][1].strip()
         if (c in ConfigInpullUpCommand):
-            return (pin, PINPUT)
+            return (pin, PINPUT, -1)
         elif (c in ConfigInpullDownCommand):
-            return (pin, PINPUTDOWN)
+            return (pin, PINPUTDOWN, -1)
         elif (c in ConfigInpullNoneCommand):
-            return (pin, PINPUTNONE)
+            return (pin, PINPUTNONE, -1)
         elif (c in ConfigOutputCommand):
-            return (pin, POUTPUT)
+            return (pin, POUTPUT, -1)
         elif (c in ConfigPWMCommand):
-            return (pin, PPWM)
+            return (pin, PPWM, int(result[0][2].strip()) if result[0][2].strip().isdigit() else -1)
         return None
 
 def QuerySetPinCommand(command):
